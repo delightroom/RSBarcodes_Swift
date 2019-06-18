@@ -27,6 +27,7 @@ open class RSCodeReaderViewController: UIViewController, AVCaptureMetadataOutput
 	@objc open var isCrazyMode = false
 	@objc var isCrazyModeStarted = false
 	@objc var lensPosition: Float = 0
+    @objc var isFreezed: Bool = false
 	
 	fileprivate struct Platform {
 		static let isSimulator: Bool = {
@@ -390,6 +391,8 @@ open class RSCodeReaderViewController: UIViewController, AVCaptureMetadataOutput
 	// MARK: AVCaptureMetadataOutputObjectsDelegate
 
 	public func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput metadataObjects: [AVMetadataObject], from connection: AVCaptureConnection) {
+        guard !isFreezed else { return }
+        
 		var barcodeObjects : Array<AVMetadataMachineReadableCodeObject> = []
 		var cornersArray : Array<[Any]> = []
 		for metadataObject in metadataObjects {
@@ -419,4 +422,21 @@ open class RSCodeReaderViewController: UIViewController, AVCaptureMetadataOutput
 			self.ticker = Timer.scheduledTimer(timeInterval: 0.4, target: self, selector: #selector(RSCodeReaderViewController.onTick), userInfo: nil, repeats: true)
 		})
 	}
+    
+    // MARK: - Freezing methods
+    
+    @objc open func freezeCapture() {
+        guard !isFreezed else { return }
+        
+        isFreezed = true
+        self.session.stopRunning()
+    }
+    
+    @objc open func unfreezeCapture() {
+        guard isFreezed else { return }
+        
+        isFreezed = false
+        self.cornersLayer.cornersArray = []
+        self.session.startRunning()
+    }
 }
