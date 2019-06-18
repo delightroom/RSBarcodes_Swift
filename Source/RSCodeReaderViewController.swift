@@ -370,6 +370,7 @@ open class RSCodeReaderViewController: UIViewController, AVCaptureMetadataOutput
 		self.videoPreviewLayer?.frame = frame
 		self.focusMarkLayer.frame = frame
 		self.cornersLayer.frame = frame
+        self.redrawRectOfInterest()
 	}
 	
 	override open func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
