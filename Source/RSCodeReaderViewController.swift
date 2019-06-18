@@ -38,6 +38,37 @@ open class RSCodeReaderViewController: UIViewController, AVCaptureMetadataOutput
 			return isSim
 		}()
 	}
+    
+    /// CAShapeLayer for displaying rectOfInterest box
+    @objc var boxOverlay: CAShapeLayer?
+    
+    /// CGRect in videoPreviewLayer's coordinate
+    open var rectOfInterest: CGRect? {
+        didSet {
+            redrawRectOfInterest()
+        }
+    }
+    
+    @objc func redrawRectOfInterest() {
+        guard let videoPreviewLayer = self.videoPreviewLayer, let previewRect = self.rectOfInterest else { return }
+        
+        // Setup rect of interest
+        let metadataRect = videoPreviewLayer.metadataOutputRectConverted(fromLayerRect: previewRect)
+        self.output.rectOfInterest = metadataRect
+        
+        // Setup rect of interest box overlay
+        boxOverlay?.removeFromSuperlayer() // remove old one if exists
+        let overlay = CAShapeLayer()
+        overlay.backgroundColor = UIColor.clear.cgColor
+        overlay.fillColor = UIColor.clear.cgColor
+        overlay.strokeColor = UIColor.white.cgColor
+        overlay.lineWidth = 3
+        overlay.lineDashPattern = [7.0, 7.0]
+        overlay.lineDashPhase = 0
+        overlay.path = UIBezierPath(roundedRect: previewRect, cornerRadius: 8).cgPath
+        boxOverlay = overlay
+        self.view.layer.insertSublayer(overlay, above: videoPreviewLayer)
+    }
 	
 	// MARK: Public methods
 	
